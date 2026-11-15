@@ -15,7 +15,7 @@ A lightweight Python utility that fetches live orbital data from CelesTrak, calc
 Before running the project, make sure you have Python 3.7+ installed, along with the required libraries for fetching data and propagating orbits:
 
 ```bash
-pip install sgp4 skyfield numpy
+pip install sgp4 skyfield numpy pyqt6
 ```
 
 ## Installation
