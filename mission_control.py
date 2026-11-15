@@ -27,19 +27,19 @@ class MainWindow(QMainWindow):
             Qt.AlignmentFlag.AlignVCenter | Qt.AlignmentFlag.AlignLeft
         )
         self.locations_list = CheckList(
-            {"Tokyo": (0,0), "Toronto":(1,1), "Paris":(2,2), "Enter coordinates manually":None},
-            lambda: self.error_message1.setText("")
+            {"Tokyo": (0,0), "Toronto":(1,1), "Paris":(2,2), "Enter coordinates manually": None},
+            lambda: self.error_coordinates.setText("")
         )
         instructions2 = Label(
             "or enter coordinates randomly:",
             15,
             Qt.AlignmentFlag.AlignVCenter | Qt.AlignmentFlag.AlignLeft
         )
-        self.line_input = LineInput(
+        self.coordinates_input = LineInput(
             "Coordinates: Latitude, Longitude",
-            lambda: self.error_message1.setText("")
+            lambda: self.error_coordinates.setText("")
         )
-        self.error_message1 = errorMessage()
+        self.error_coordinates = errorMessage()
 
         parameters = Label(
             "Parameters",
@@ -48,22 +48,21 @@ class MainWindow(QMainWindow):
         )
         self.max_elevation = LineInput(
             "Enter max elevation:",
-            lambda: self.error_message2.setText("")
+            lambda: self.error_max_elevation.setText("")
         )
-        self.error_message2 = errorMessage()
+        self.error_max_elevation = errorMessage()
 
-        # self.max_variance_longitude = LineInput(
-        #     "Enter max variance in longitude (Default 0.5):"
-        # )
-        # self.error_message3 = errorMessage()
-
-        # self.max_variance_latitude = LineInput(
-        #     "Enter max variance in longitude (Default 0.25):"
-        # )
+        self.max_variance_longitude = LineInput(
+            "Enter max variance in longitude (Default 0.5):",
+            lambda: self.error_max_variance_longitude.setText("")
+        )
+        self.max_variance_latitude = LineInput(
+            "Enter max variance in longitude (Default 0.25):",
+            lambda: self.error_max_variance_latitude.setText("")
+        )
 
         self.button = QPushButton("Run Calculations")
         self.button.pressed.connect(self.submit)
-        self.error_message20 = errorMessage()
 
         self.layout = GridLayout(
             [
@@ -72,17 +71,14 @@ class MainWindow(QMainWindow):
             [instructions1],
             [self.locations_list],
             [instructions2],
-            [self.line_input],
-            [self.error_message1.label],
+            [self.coordinates_input],
+            [self.error_coordinates.label],
             [parameters],
             [self.max_elevation],
-            [self.error_message2.label],
-
-
-
-
-            [self.button],
-            [self.error_message20.label]
+            [self.error_max_elevation.label],
+            [self.max_variance_longitude],
+            [self.max_variance_latitude],
+            [self.button]
             ]
         )
 
@@ -91,7 +87,7 @@ class MainWindow(QMainWindow):
         self.setCentralWidget(self.container)
 
     def invalid_coordinates(self):
-        self.error_message1.setText("Invalid coordinates or invalid format: Latitude, Longitude")
+        self.error_coordinates.setText("Invalid coordinates or invalid format: Latitude, Longitude")
 
     def get_coordinates(self):
         coordinates = None
@@ -100,21 +96,31 @@ class MainWindow(QMainWindow):
         if coordinates:
             return coordinates
 
-        return parse_coords(self.line_input.text)
+        return parse_coords(self.coordinates_input.text)
 
     def submit(self):
         coordinates = self.get_coordinates()
         if not coordinates:
-            self.error_message1.setText("Please choose a city or enter coordinates.")
+            self.error_coordinates.setText("Please choose a city or enter coordinates.")
             return
 
         try:
             max_elevation = float(self.max_elevation.text)
         except:
-            self.error_message2.setText("Please enter a decimal number for elevation.")
+            self.error_max_elevation.setText("Please enter a decimal number for elevation.")
             return
 
-        print(coordinates, max_elevation)
+        try:
+            max_variance_longitude = float(self.max_variance_longitude.text)
+        except:
+            max_variance_longitude = 0.5
+
+        try:
+            max_variance_latitude = float(self.max_variance_latitude.text)
+        except:
+            max_variance_latitude = 0.25
+
+        print(coordinates, max_elevation, max_variance_longitude, max_variance_latitude)
 
 class LineInput(QLineEdit):
     text = ""
