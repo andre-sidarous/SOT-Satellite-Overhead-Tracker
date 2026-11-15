@@ -1,0 +1,12 @@
+QTabBar::tab {
+    width: 150px;
+    height: 40px;
+    margin: 2px;
+    padding: 5px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    background-color: #3d3938;
+}
+QTabBar::tab:selected {
+    background-color: #3d3938;
+}
