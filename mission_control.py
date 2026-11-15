@@ -1,65 +1,208 @@
-from typing import List
+from typing import Dict, List
 from PyQt6.QtCore import QSize, Qt
-from PyQt6.QtWidgets import QApplication, QMainWindow, QLabel, QGridLayout, QWidget, QListWidget
-
+from PyQt6.QtWidgets import QApplication, QMainWindow, QLabel, QGridLayout, QWidget, QListWidget, QLineEdit, QPushButton
+from parse_coords import parse_coords
 
 class MainWindow(QMainWindow):
+    width, height = 800, 600
+
     def __init__(self):
         super().__init__()
         self.setWindowTitle("mecearth")
-        self.width, self.height = 800, 600
         self.setFixedSize(QSize(self.width, self.height))
 
-        mission_control = Label("Mission Control", 30)
-        locations_list = CheckList(["Tokyo", "Toronto", "Paris"])
+        mission_control = Label(
+            "Mission Control",
+            30,
+            Qt.AlignmentFlag.AlignHCenter | Qt.AlignmentFlag.AlignVCenter
+        )
+        location = Label(
+            "Location",
+            25,
+            Qt.AlignmentFlag.AlignVCenter | Qt.AlignmentFlag.AlignLeft
+        )
+        instructions1 = Label(
+            "Select a city:",
+            15,
+            Qt.AlignmentFlag.AlignVCenter | Qt.AlignmentFlag.AlignLeft
+        )
+        self.locations_list = CheckList(
+            {"Tokyo": (0,0), "Toronto":(1,1), "Paris":(2,2), "Enter coordinates manually":None},
+            lambda: self.error_message1.setText("")
+        )
+        instructions2 = Label(
+            "or enter coordinates randomly:",
+            15,
+            Qt.AlignmentFlag.AlignVCenter | Qt.AlignmentFlag.AlignLeft
+        )
+        self.line_input = LineInput(
+            "Coordinates: Latitude, Longitude",
+            lambda: self.error_message1.setText("")
+        )
+        self.error_message1 = errorMessage()
 
-        layout = GridLayout(
-            [[mission_control],
-            [locations_list]]
+        parameters = Label(
+            "Parameters",
+            25,
+            Qt.AlignmentFlag.AlignVCenter | Qt.AlignmentFlag.AlignLeft
+        )
+        self.max_elevation = LineInput(
+            "Enter max elevation:",
+            lambda: self.error_message2.setText("")
+        )
+        self.error_message2 = errorMessage()
+
+        # self.max_variance_longitude = LineInput(
+        #     "Enter max variance in longitude (Default 0.5):"
+        # )
+        # self.error_message3 = errorMessage()
+
+        # self.max_variance_latitude = LineInput(
+        #     "Enter max variance in longitude (Default 0.25):"
+        # )
+
+        self.button = QPushButton("Run Calculations")
+        self.button.pressed.connect(self.submit)
+        self.error_message20 = errorMessage()
+
+        self.layout = GridLayout(
+            [
+            [mission_control],
+            [location],
+            [instructions1],
+            [self.locations_list],
+            [instructions2],
+            [self.line_input],
+            [self.error_message1.label],
+            [parameters],
+            [self.max_elevation],
+            [self.error_message2.label],
+
+
+
+
+            [self.button],
+            [self.error_message20.label]
+            ]
         )
 
-        container = QWidget()
-        container.setLayout(layout)
-        self.setCentralWidget(container)
+        self.container = QWidget()
+        self.container.setLayout(self.layout)
+        self.setCentralWidget(self.container)
+
+    def invalid_coordinates(self):
+        self.error_message1.setText("Invalid coordinates or invalid format: Latitude, Longitude")
+
+    def get_coordinates(self):
+        coordinates = None
+        
+        coordinates = self.locations_list.get_coordinates()
+        if coordinates:
+            return coordinates
+
+        return parse_coords(self.line_input.text)
+
+    def submit(self):
+        coordinates = self.get_coordinates()
+        if not coordinates:
+            self.error_message1.setText("Please choose a city or enter coordinates.")
+            return
+
+        try:
+            max_elevation = float(self.max_elevation.text)
+        except:
+            self.error_message2.setText("Please enter a decimal number for elevation.")
+            return
+
+        print(coordinates, max_elevation)
+
+class LineInput(QLineEdit):
+    text = ""
+    coordinates = None
+
+    def __init__(self, placeholder: str, lambda_text_changed = None):
+        super().__init__()
+
+        self.placeholder = placeholder
+        self.lambda_text_changed = lambda_text_changed
+
+        self.setPlaceholderText(self.placeholder)
+
+        self.textChanged.connect(self.text_changed)
+
+    def text_changed(self, text: str):
+        self.text = text
+
+        if self.lambda_text_changed:
+            self.lambda_text_changed()
 
 class GridLayout(QGridLayout):
-    def __init__(self, layout: List[List[QWidget]]):
+    def __init__(self, items: List[List[QWidget]]):
         super().__init__()
 
-        max_width = 0
+        self.items = items
 
-        for row in layout:
-            if len(row) > max_width:
-                max_width = len(row)
+        self.max_width = 0
 
-        for i in range(len(layout)):
-            for j in range(max_width):
-                if j < max_width:
-                    self.addWidget(layout[i][j], i, j)
+        for row in items:
+            if len(row) > self.max_width:
+                self.max_width = len(row)
+
+        for i in range(len(items)):
+            for j in range(self.max_width):
+                if j < len(items[i]):
+                    self.addWidget(items[i][j], i, j)
 
 class CheckList(QListWidget):
-    def __init__(self, items: List[str]):
+    count = 0
+    current = None
+
+
+    def __init__(self, items: Dict, lambda_index_changed = None):
         super().__init__()
 
-        self.addItems(items)
+        self.lambda_index_changed = lambda_index_changed
 
-        self.current = None
+        self.items = items
+
+        for name in items:
+            self.addItem(name)
 
         self.currentItemChanged.connect(self.index_changed)
 
     def index_changed(self, listItem):
+        if self.count == 0:
+            self.count += 1
+            return
         self.current = listItem.text()
+        if self.lambda_index_changed:
+            self.lambda_index_changed()
+
+    def get_coordinates(self):
+        if not self.current:
+            return None
+
+        return self.items[self.current]
 
 class Label(QLabel):
-    def __init__(self, text: str, font_size: int):
+    def __init__(self, text: str, font_size: int, alignment):
         super().__init__(text)
 
         font = self.font()
         font.setPointSize(font_size)
         self.setFont(font)
 
-        self.setAlignment(Qt.AlignmentFlag.AlignHCenter | Qt.AlignmentFlag.AlignVCenter)
+        self.setAlignment(alignment)
 
+class errorMessage():
+    def __init__(self):
+        self.label = Label(
+            "",
+            15,
+            Qt.AlignmentFlag.AlignVCenter | Qt.AlignmentFlag.AlignLeft
+        )
+    def setText(self, text: str):
+        self.label.setText(text)
 
 app = QApplication([])
 window = MainWindow()
