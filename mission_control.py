@@ -1,6 +1,7 @@
 from typing import Dict, List
-from PyQt6.QtCore import QSize, Qt
-from PyQt6.QtWidgets import QApplication, QMainWindow, QLabel, QGridLayout, QWidget, QListWidget, QLineEdit, QPushButton
+from PyQt6.QtCore import QRect, QSize, Qt
+from PyQt6.QtWidgets import QApplication, QMainWindow, QLabel, QGridLayout, QSizePolicy, QWidget, QListWidget, QLineEdit, QPushButton
+from PyQt6.QtGui import QFontMetrics
 from parse_coords import parse_coords
 from seeIfCollisions import seeIfCollision
 from getSatelliteLocations import getSatelliteLocations
@@ -25,7 +26,7 @@ class MainWindow(QMainWindow):
             Qt.AlignmentFlag.AlignVCenter | Qt.AlignmentFlag.AlignLeft
         )
         instructions1 = Label(
-            "Select a city:",
+            "Select a space center:",
             self.small_size,
             Qt.AlignmentFlag.AlignVCenter | Qt.AlignmentFlag.AlignLeft
         )
@@ -78,12 +79,21 @@ class MainWindow(QMainWindow):
             self.medium_size,
             Qt.AlignmentFlag.AlignVCenter | Qt.AlignmentFlag.AlignHCenter
         )
+        self.result.setWordWrap(True)
+        self.result.setAlignment(Qt.AlignmentFlag.AlignHCenter | Qt.AlignmentFlag.AlignTop)
+        self.result.setSizePolicy(QSizePolicy.Policy.Ignored, QSizePolicy.Policy.Ignored)
+
+        self.crash_state = Label(
+            "",
+            self.medium_size,
+            Qt.AlignmentFlag.AlignBottom | Qt.AlignmentFlag.AlignHCenter
+        )
 
         self.layout = GridLayout(
             [
             [mission_control, mission_dashboard],
-            [location, self.result],
-            [instructions1],
+            [location, self.crash_state],
+            [instructions1, self.result],
             [self.locations_list],
             [instructions2],
             [self.coordinates_input],
@@ -137,7 +147,7 @@ class MainWindow(QMainWindow):
     def submit(self):
         coordinates = self.get_coordinates()
         if not coordinates:
-            self.error_coordinates.setText("Please choose a city or enter coordinates.")
+            self.error_coordinates.setText("Please choose a space center or enter coordinates.")
             return
 
         try:
@@ -158,7 +168,27 @@ class MainWindow(QMainWindow):
 
         latitude, longitude = coordinates
 
-        print(self.get_output(latitude, max_variance_latitude, longitude, max_variance_longitude, max_elevation))
+        (output_text, has_crashed) = self.get_output(
+            latitude,
+            max_variance_latitude,
+            longitude,
+            max_variance_longitude,
+            max_elevation
+        )
+
+        color = ""
+        if has_crashed:
+            color = "red"
+            self.crash_state.setText("YOUR CRAFT WILL COLLIDE")
+        else:
+            color = "green"
+            self.crash_state.setText("YOUR CRAFT IS SAFE")
+
+        self.crash_state.setStyleSheet(f"background-color: {color}; color: white; padding: 4px;")
+        self.crash_state.setAutoFillBackground(True)
+
+        self.result.setText(output_text)
+        self.result.fit_font()
 
 class LineInput(QLineEdit):
     text = ""
@@ -195,6 +225,11 @@ class GridLayout(QGridLayout):
                 if j < len(items[i]):
                     self.addWidget(items[i][j], i, j)
 
+        for r in range(len(items)):
+            self.setRowStretch(r, 1)
+        for c in range(max_width):
+            self.setColumnStretch(c, 1)
+
 class CheckList(QListWidget):
     def __init__(self, items: Dict, lambda_index_changed = None):
         super().__init__()
@@ -230,6 +265,29 @@ class Label(QLabel):
         self.setFont(font)
 
         self.setAlignment(alignment)
+
+    def fit_font(self, max_pt=32, min_pt=6):
+        rect = self.contentsRect()
+        if rect.width() <= 0 or rect.height() <= 0:
+            return
+        flags = int(Qt.TextFlag.TextWordWrap | Qt.AlignmentFlag.AlignCenter)
+
+        lo, hi, best = min_pt, max_pt, min_pt
+        while lo <= hi:                          # binary search for the largest size that fits
+            mid = (lo + hi) // 2
+            font = self.font()
+            font.setPointSize(mid)
+            bounds = QFontMetrics(font).boundingRect(
+                QRect(0, 0, rect.width(), 100_000), flags, self.text()
+            )
+            if bounds.height() <= rect.height():
+                best, lo = mid, mid + 1
+            else:
+                hi = mid - 1
+
+        font = self.font()
+        font.setPointSize(best)
+        self.setFont(font)
 
 class errorMessage():
     def __init__(self):
