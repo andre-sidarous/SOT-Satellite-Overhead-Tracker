@@ -1,23 +1,24 @@
-from PyQt6.QtCore import QSize, Qt
-from PyQt6.QtWidgets import QApplication, QMainWindow, QGridLayout, QWidget
+from PyQt6.QtCore import QSize
+from PyQt6.QtWidgets import QApplication, QMainWindow, QLabel, QTabWidget
+from PyQt6.QtGui import QIcon
 
 
 class MainWindow(QMainWindow):
     def __init__(self):
         super().__init__()
+        self.setWindowTitle("My App")
 
-        self.width, self.height = 800, 600
+        self.setFixedSize(QSize(800, 600))
 
-        self.setFixedSize(self.width, self.height)
+        tabs = QTabWidget()
+        tabs.setTabPosition(QTabWidget.TabPosition.West)
+        tabs.setMovable(False)
+        tabs.setStyleSheet()
+        tabs.addTab(QLabel("Content of Tab 1"),QIcon("3413124.png"), "Tab 1")
+        tabs.addTab(QLabel("Content of Tab 2"),QIcon("3413124.png"), "Tab 2")
 
-        layout = GridLayout()
+        self.setCentralWidget(tabs)
 
-        container = QWidget()
-        container.setLayout(layout)
-
-class GridLayout(QGridLayout):
-    def __init__(self):
-        super().__init__()
 
 app = QApplication([])
 window = MainWindow()
