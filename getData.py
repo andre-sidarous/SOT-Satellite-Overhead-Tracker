@@ -20,5 +20,7 @@ def getData(filename="data2"):
     # 2. If it's been 2+ hours (Celestrak GP data update frequency) since the last write, then get new data. Otherwise do nothing (it'll break Celestrak's usage limits)
     if hoursPassed >= 2:
         A = requests.get("https://celestrak.org/NORAD/elements/gp.php?GROUP=active&FORMAT=JSON")
-        with open(filepath, "w") as f:
-            f.writelines([f"{A.text}", f"{datetime.now(UTC).isoformat()}\n"])
+        #Only overwrite it if the data fetch was successful
+        if A.status_code == 200:
+            with open(filepath, "w") as f:
+                f.writelines([f"{A.text}", f"{datetime.now(UTC).isoformat()}\n"])
