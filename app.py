@@ -15,8 +15,8 @@ class MainWindow(QMainWindow):
         tabs.setMovable(False)
         tabs.setStyleSheet("""
             QTabBar::tab {
-                width: 150px;
-                height: 40px;
+                width: 100px;
+                height: 200px;
                 margin: 2px;
                 padding: 5px;
                 border: 1px solid #ccc;
@@ -24,11 +24,12 @@ class MainWindow(QMainWindow):
                 background-color: #3d3938;
             }
             QTabBar::tab:selected {
-                background-color: #3d3938;
+                background-color: #635c5a;
             }
         """)
-        tabs.addTab(QLabel("Content of Tab 1"),QIcon("3413124.png"), "Tab 1")
+        tabs.addTab(QLabel("Hello, welcome to MECEarth!"),QIcon("3413124.png"), "Menu")
         tabs.addTab(QLabel("Content of Tab 2"),QIcon("3413124.png"), "Tab 2")
+        tabs.setIconSize(QSize(100, 100))
 
         self.setCentralWidget(tabs)
 window = MainWindow()
