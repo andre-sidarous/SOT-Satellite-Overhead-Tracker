@@ -1,5 +1,3 @@
-from getSatelliteLocations import getSatelliteLocations
-
 def seeIfCollision(latitude: float, latitudeVariance:float, longitude:float, longitudeVariance:float, satelliteDict: dict, maxElevation:float):
     # 1. Create the list of all valid coordinates given the variances provided
     coordinateList = []

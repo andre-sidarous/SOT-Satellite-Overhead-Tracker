@@ -2,6 +2,8 @@ from typing import Dict, List
 from PyQt6.QtCore import QSize, Qt
 from PyQt6.QtWidgets import QApplication, QMainWindow, QLabel, QGridLayout, QWidget, QListWidget, QLineEdit, QPushButton
 from parse_coords import parse_coords
+from seeIfCollisions import seeIfCollision
+from getSatelliteLocations import getSatelliteLocations
 
 class MainWindow(QMainWindow):
     width, height = 800, 600
@@ -98,6 +100,27 @@ class MainWindow(QMainWindow):
 
         return parse_coords(self.coordinates_input.text)
 
+    def get_output(self, latitude, max_variance_latitude, longitude, max_variance_longitude, max_elevation):
+        satelliteDict = getSatelliteLocations()
+        satelliteCollisions = seeIfCollision(
+            latitude,
+            max_variance_latitude,
+            longitude,
+            max_variance_longitude,
+            satelliteDict,
+            max_elevation
+        )
+        
+        if not satelliteCollisions:
+            return "A satellite launched from this point on Earth would not collide with any satellites."
+
+        text = "A satellite launched from this point on Earth would collide with the following satellites:\n"
+        for satellite in satelliteCollisions[:-1]:
+            text += satellite + ", "
+        text += satelliteCollisions[-1] + "."
+
+        return text
+
     def submit(self):
         coordinates = self.get_coordinates()
         if not coordinates:
@@ -120,7 +143,9 @@ class MainWindow(QMainWindow):
         except:
             max_variance_latitude = 0.25
 
-        print(coordinates, max_elevation, max_variance_longitude, max_variance_latitude)
+        latitude, longitude = coordinates
+
+        print(self.get_output(latitude, max_variance_latitude, longitude, max_variance_longitude, max_elevation))
 
 class LineInput(QLineEdit):
     text = ""
