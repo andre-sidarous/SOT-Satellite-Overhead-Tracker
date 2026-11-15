@@ -24,7 +24,8 @@ def seeIfCollision(latitude: float, latitudeVariance:float, longitude:float, lon
         if i in satelliteDict:
             satellitesFound = satelliteDict.get(i)
             for i in range(0, len(satellitesFound)):
-                satellitesToCollide.append(satellitesFound[i][0])
+                if maxElevation >= satellitesFound[i][1]:
+                    satellitesToCollide.append(satellitesFound[i][0])
 
     # 3. Return the master list
     return satellitesToCollide
