@@ -1,5 +1,7 @@
-from getSatelliteLocations import getSatelliteLocations
-
+"""
+Gets a list of all the satellites NAMES that you'll collide with, given a latitude/longitude (+/- a variance), a max elevation,
+and a satellite dict created by getSatelliteLocations()
+"""
 def seeIfCollision(latitude: float, latitudeVariance:float, longitude:float, longitudeVariance:float, satelliteDict: dict, maxElevation:float):
     # 1. Create the list of all valid coordinates given the variances provided
     coordinateList = []
@@ -29,6 +31,3 @@ def seeIfCollision(latitude: float, latitudeVariance:float, longitude:float, lon
 
     # 3. Return the master list
     return satellitesToCollide
-
-# satelliteDict = getSatelliteLocations()
-# print(seeIfCollision(0.0, 0.1, 46.2, 0.1, satelliteDict, 5))
