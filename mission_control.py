@@ -8,7 +8,7 @@ from getSatelliteLocations import getSatelliteLocations
 
 class MainWindow(QMainWindow):
     width, height = 800, 600
-    big_size, medium_size, small_size, tiny_size = 30, 25, 15, 8
+    big_size, medium_size, small_size = 30, 25, 15
 
     def __init__(self):
         super().__init__()
@@ -76,7 +76,7 @@ class MainWindow(QMainWindow):
 
         self.result = Label(
             "No Data Submitted",
-            self.small_size,
+            self.medium_size,
             Qt.AlignmentFlag.AlignVCenter | Qt.AlignmentFlag.AlignHCenter
         )
         self.result.setWordWrap(True)
