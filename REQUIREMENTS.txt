@@ -1,3 +1,4 @@
 sgp4
 skyfield
 numpy
+pyqt6
