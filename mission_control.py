@@ -29,7 +29,7 @@ class MainWindow(QMainWindow):
             Qt.AlignmentFlag.AlignVCenter | Qt.AlignmentFlag.AlignLeft
         )
         self.locations_list = CheckList(
-            {"Tokyo": (0,0), "Toronto":(1,1), "Paris":(2,2), "Enter coordinates manually": None},
+            {"Enter coordinates manually": None, "Tokyo": (0,0), "Toronto":(1,1), "Paris":(2,2)},
             lambda: self.error_coordinates.setText("")
         )
         instructions2 = Label(
@@ -185,10 +185,6 @@ class GridLayout(QGridLayout):
                     self.addWidget(items[i][j], i, j)
 
 class CheckList(QListWidget):
-    count = 0
-    current = None
-
-
     def __init__(self, items: Dict, lambda_index_changed = None):
         super().__init__()
 
@@ -199,12 +195,11 @@ class CheckList(QListWidget):
         for name in items:
             self.addItem(name)
 
+        self.current = None
+        self.count = 0
         self.currentItemChanged.connect(self.index_changed)
 
     def index_changed(self, listItem):
-        if self.count == 0:
-            self.count += 1
-            return
         self.current = listItem.text()
         if self.lambda_index_changed:
             self.lambda_index_changed()
