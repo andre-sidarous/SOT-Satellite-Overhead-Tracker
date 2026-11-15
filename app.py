@@ -5,6 +5,8 @@ import sys
 
 app = QApplication(sys.argv)
 
+coordinates = {"kennedy_space_center": (28.573469, -80.651070), "marshall_space_flight_center": (34.6458874, -86.6756394), "johnson_space_center": (29.559303, -95.090062), "stennis_space_center": (30.362778, -89.600278)}
+
 class MainWindow(QMainWindow):
     def __init__(self):
         super().__init__()
