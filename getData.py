@@ -1,6 +1,9 @@
 import requests
 from datetime import datetime, UTC
 
+"""
+Gets fresh data if 2 hours have elapsed since the data was last updated.
+"""
 def getData(filename="data2"):
     filepath = f"{filename}.txt"
     
