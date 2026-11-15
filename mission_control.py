@@ -7,6 +7,7 @@ from getSatelliteLocations import getSatelliteLocations
 
 class MainWindow(QMainWindow):
     width, height = 800, 600
+    big_size, medium_size, small_size = 30, 25, 15
 
     def __init__(self):
         super().__init__()
@@ -15,17 +16,17 @@ class MainWindow(QMainWindow):
 
         mission_control = Label(
             "Mission Control",
-            30,
+            self.big_size,
             Qt.AlignmentFlag.AlignHCenter | Qt.AlignmentFlag.AlignVCenter
         )
         location = Label(
             "Location",
-            25,
+            self.medium_size,
             Qt.AlignmentFlag.AlignVCenter | Qt.AlignmentFlag.AlignLeft
         )
         instructions1 = Label(
             "Select a city:",
-            15,
+            self.small_size,
             Qt.AlignmentFlag.AlignVCenter | Qt.AlignmentFlag.AlignLeft
         )
         self.locations_list = CheckList(
@@ -34,7 +35,7 @@ class MainWindow(QMainWindow):
         )
         instructions2 = Label(
             "or enter coordinates randomly:",
-            15,
+            self.small_size,
             Qt.AlignmentFlag.AlignVCenter | Qt.AlignmentFlag.AlignLeft
         )
         self.coordinates_input = LineInput(
@@ -45,11 +46,11 @@ class MainWindow(QMainWindow):
 
         parameters = Label(
             "Parameters",
-            25,
+            self.medium_size,
             Qt.AlignmentFlag.AlignVCenter | Qt.AlignmentFlag.AlignLeft
         )
         self.max_elevation = LineInput(
-            "Enter max elevation:",
+            "Enter max elevation (m):",
             lambda: self.error_max_elevation.setText("")
         )
         self.error_max_elevation = errorMessage()
@@ -66,10 +67,22 @@ class MainWindow(QMainWindow):
         self.button = QPushButton("Run Calculations")
         self.button.pressed.connect(self.submit)
 
+        mission_dashboard = Label(
+            "Mission Dashboard",
+            self.big_size,
+            Qt.AlignmentFlag.AlignHCenter | Qt.AlignmentFlag.AlignVCenter
+        )
+
+        self.result = Label(
+            "No Data Submitted",
+            self.medium_size,
+            Qt.AlignmentFlag.AlignVCenter | Qt.AlignmentFlag.AlignHCenter
+        )
+
         self.layout = GridLayout(
             [
-            [mission_control],
-            [location],
+            [mission_control, mission_dashboard],
+            [location, self.result],
             [instructions1],
             [self.locations_list],
             [instructions2],
@@ -112,14 +125,14 @@ class MainWindow(QMainWindow):
         )
         
         if not satelliteCollisions:
-            return "A satellite launched from this point on Earth would not collide with any satellites."
+            return ("A satellite launched from this point on Earth would not collide with any satellites.", False)
 
         text = "A satellite launched from this point on Earth would collide with the following satellites:\n"
         for satellite in satelliteCollisions[:-1]:
             text += satellite + ", "
         text += satelliteCollisions[-1] + "."
 
-        return text
+        return (text, True)
 
     def submit(self):
         coordinates = self.get_coordinates()
@@ -171,16 +184,14 @@ class GridLayout(QGridLayout):
     def __init__(self, items: List[List[QWidget]]):
         super().__init__()
 
-        self.items = items
-
-        self.max_width = 0
+        max_width = 0
 
         for row in items:
-            if len(row) > self.max_width:
-                self.max_width = len(row)
+            if len(row) > max_width:
+                max_width = len(row)
 
         for i in range(len(items)):
-            for j in range(self.max_width):
+            for j in range(max_width):
                 if j < len(items[i]):
                     self.addWidget(items[i][j], i, j)
 
