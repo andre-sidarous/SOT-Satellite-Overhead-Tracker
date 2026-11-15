@@ -23,7 +23,7 @@ class MainWindow(QMainWindow):
         self.setCentralWidget(container)
 
 class GridLayout(QGridLayout):
-    def __init__(self, layout: List[QWidget]):
+    def __init__(self, layout: List[List[QWidget]]):
         super().__init__()
 
         max_width = 0
