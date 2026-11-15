@@ -1,2 +1,2 @@
 run:
-	@python3 mission_control.py
+	@python3 app.py
