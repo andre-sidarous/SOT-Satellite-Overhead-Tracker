@@ -111,7 +111,7 @@ class CalculationThread(QThread):
 class MainWindow(QMainWindow):
     def __init__(self):
         super().__init__()
-        self.setWindowTitle("MECEarth")
+        self.setWindowTitle("SOT")
         self.setFixedSize(WINDOW_SIZE)
 
         self.worker: Optional[CalculationThread] = None
@@ -123,7 +123,7 @@ class MainWindow(QMainWindow):
         tabs.setIconSize(QSize(60, 60))
 
         tabs.addTab(
-            Label("Hello, welcome to MECEarth!", 50, CENTER),
+            Label("Hello, welcome to Satellite Overhead Tracker!", 50, CENTER),
             QIcon("3413124.png"),
             "Menu",
         )

@@ -27,6 +27,3 @@ def seeIfCollision(latitude: float, latitudeVariance:float, longitude:float, lon
 
     # 3. Return the master list
     return satellitesToCollide
-
-# satelliteDict = getSatelliteLocations()
-# print(seeIfCollision(0.0, 0.1, 46.2, 0.1, satelliteDict, 5))

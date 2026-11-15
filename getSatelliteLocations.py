@@ -2,6 +2,7 @@ import requests
 import json
 import numpy as np
 from getLatitudeLongitude import getLatitudeLongitude
+from getData import getData
 
 ##FOR A COORD WITH MULTIPLE SATELLITES: (0.0,46.2)
 """
@@ -12,8 +13,9 @@ Returns a dictionary (in the format above), that contains all satellites at a sp
 def getSatelliteLocations(filename="data2"):
     satelliteDict = {}
 
+    getData() #Make sure you get fresh data (if necessary)
     with open(f"{filename}.txt") as f:
-        y = json.loads(f.read())
+        y = json.loads(f.readline())
 
         for i in range(len(y)):
             name = y[i]["OBJECT_NAME"]
